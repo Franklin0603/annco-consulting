@@ -27,4 +27,5 @@ export interface DashboardData {
   clientName: string;
   periodLabel: string;
   uploadMsg?: string;
+  source: "sample" | "upload";
 }

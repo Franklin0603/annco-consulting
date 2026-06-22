@@ -91,6 +91,10 @@ export function Header() {
           {dark ? "☀" : "☾"}
         </button>
 
+        <Link href="/admin" className={styles.adminBtn}>
+          Admin
+        </Link>
+
         <Link href="/dashboard" className={styles.cta}>
           Client Dashboard
         </Link>
@@ -114,6 +118,9 @@ export function Header() {
           ))}
           <Link href="/dashboard" className={`${styles.cta} ${styles.mobileCta}`}>
             Client Dashboard
+          </Link>
+          <Link href="/admin" className={styles.link} style={{ color: "var(--ink-soft)" }}>
+            Admin
           </Link>
           <a href="tel:+17185550142" className={`${styles.mobilePhone} mono`}>
             ☎ (718) 555-0142

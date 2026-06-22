@@ -69,6 +69,23 @@
   white-space: nowrap;
 }
 
+.adminBtn {
+  text-decoration: none;
+  padding: 9px 14px;
+  border-radius: 9px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-weight: 600;
+  font-size: 14.5px;
+  white-space: nowrap;
+}
+
+.adminBtn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
 /* Hamburger — hidden on desktop */
 .menuBtn {
   display: none;
@@ -92,7 +109,8 @@
   }
   .nav,
   .phone,
-  .cta {
+  .cta,
+  .adminBtn {
     display: none;
   }
   .spacer {

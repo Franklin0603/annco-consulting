@@ -117,6 +117,7 @@ export async function parseFile(file: File): Promise<DashboardData> {
       clientName: cleanName,
       periodLabel: `${data[0].month} – ${data[data.length - 1].month} · ${data.length} months`,
       uploadMsg: `Loaded ${data.length} months from ${file.name}`,
+      source: "upload" as const,
     };
   } catch {
     return fallback(

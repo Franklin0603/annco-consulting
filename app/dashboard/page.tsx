@@ -19,41 +19,92 @@ import { net, usdK } from "@/lib/finance";
 const cardStyle: React.CSSProperties = {
   background: "var(--surface)",
   border: "1px solid var(--border)",
-  borderRadius: 20,
+  borderRadius: 18,
   padding: 24,
   boxShadow: "var(--shadow)",
 };
 
+type TabId = "overview" | "analysis" | "forecast" | "data" | "assistant";
+
+const TABS: { id: TabId; label: string }[] = [
+  { id: "overview", label: "Overview" },
+  { id: "analysis", label: "Analysis" },
+  { id: "forecast", label: "Forecast" },
+  { id: "data", label: "Data" },
+  { id: "assistant", label: "Assistant" },
+];
+
+function CardHeading({ title, sub }: { title: string; sub?: string }) {
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <div style={{ fontFamily: "var(--font-serif)", fontSize: 18, fontWeight: 700 }}>{title}</div>
+      {sub && <div style={{ fontSize: 13.5, color: "var(--muted)", marginTop: 4 }}>{sub}</div>}
+    </div>
+  );
+}
+
 export default function DashboardPage() {
   const [dash, setDash] = useState<DashboardData | null>(null);
+  const [tab, setTab] = useState<TabId>("overview");
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const loadSample = () => setDash({ ...sampleDashboard(), uploadMsg: "" });
+  const loadSample = () => {
+    setDash(sampleDashboard());
+    setTab("overview");
+  };
 
   const onFile = async (file?: File | null) => {
     if (!file) return;
     setDash(await parseFile(file));
+    setTab("overview");
   };
 
   const data = dash?.data ?? null;
   const snap = data ? data[data.length - 1] : null;
-  // Key resets AI/note panels when a new client is loaded.
   const sessionKey = dash ? `${dash.clientName}|${dash.periodLabel}` : "none";
 
   return (
-    <div className="fade-up" style={{ maxWidth: 1100, margin: "0 auto", padding: "48px 28px 72px" }}>
-      {/* Header row */}
-      <div className="no-print" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 20, flexWrap: "wrap" }}>
+    <div className="fade-up" style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 28px 72px" }}>
+      {/* ---------- Toolbar ---------- */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-end",
+          gap: 20,
+          flexWrap: "wrap",
+          paddingBottom: 22,
+          borderBottom: "1px solid var(--border)",
+        }}
+      >
         <div>
           <div className="eyebrow">Client dashboard</div>
-          <h1 style={{ fontFamily: "var(--font-serif)", fontSize: 34, fontWeight: 700, marginTop: 8 }}>
+          <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(26px, 5vw, 34px)", fontWeight: 700, marginTop: 8 }}>
             {dash?.clientName ?? "No client loaded"}
           </h1>
-          <div style={{ color: "var(--muted)", fontSize: 14.5, marginTop: 4 }}>
-            {dash?.periodLabel ?? "Upload a balance sheet or load the sample"}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8, flexWrap: "wrap" }}>
+            {dash && (
+              <span
+                className="mono"
+                style={{
+                  fontSize: 11.5,
+                  fontWeight: 600,
+                  padding: "3px 9px",
+                  borderRadius: 100,
+                  background: dash.source === "upload" ? "var(--accent-soft)" : "var(--surface-2)",
+                  color: dash.source === "upload" ? "var(--accent)" : "var(--muted)",
+                }}
+              >
+                {dash.source === "upload" ? "Uploaded file" : "Sample data"}
+              </span>
+            )}
+            <span style={{ color: "var(--muted)", fontSize: 14 }}>
+              {dash?.periodLabel ?? "Upload a balance sheet or load the sample to begin"}
+            </span>
           </div>
         </div>
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
           <label
             style={{
               display: "inline-flex",
@@ -95,12 +146,7 @@ export default function DashboardPage() {
           >
             Load sample client
           </button>
-          <a
-            href="/sample-balance-sheet.csv"
-            download
-            className="mono"
-            style={{ alignSelf: "center", color: "var(--accent)", fontSize: 12.5, textDecoration: "none" }}
-          >
+          <a href="/sample-balance-sheet.csv" download className="mono" style={{ color: "var(--accent)", fontSize: 12.5, textDecoration: "none" }}>
             template ↓
           </a>
         </div>
@@ -108,9 +154,8 @@ export default function DashboardPage() {
 
       {dash?.uploadMsg && (
         <div
-          className="no-print"
           style={{
-            marginTop: 20,
+            marginTop: 18,
             background: "var(--accent-soft)",
             border: "1px solid var(--accent)",
             borderRadius: 10,
@@ -123,10 +168,9 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Empty state */}
+      {/* ---------- Empty state ---------- */}
       {!data && (
         <div
-          className="no-print"
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => {
             e.preventDefault();
@@ -165,115 +209,140 @@ export default function DashboardPage() {
             Load sample client (Acme Bakery LLC)
           </button>
           <div style={{ marginTop: 16 }}>
-            <a
-              href="/sample-balance-sheet.csv"
-              download
-              className="mono"
-              style={{ color: "var(--accent)", fontSize: 13, textDecoration: "none" }}
-            >
+            <a href="/sample-balance-sheet.csv" download className="mono" style={{ color: "var(--accent)", fontSize: 13, textDecoration: "none" }}>
               ⬇ Download a sample template (.csv) to try the upload
             </a>
           </div>
         </div>
       )}
 
-      {/* Data state */}
+      {/* ---------- Loaded state ---------- */}
       {data && snap && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 18, marginTop: 28 }}>
-          <div className="no-print">
+        <>
+          {/* Persistent summary bar */}
+          <div style={{ marginTop: 24 }}>
             <KpiRow data={data} />
           </div>
 
-          <div className="no-print" style={cardStyle}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, marginBottom: 16 }}>
-              <div style={{ fontFamily: "var(--font-serif)", fontSize: 18, fontWeight: 700 }}>
-                Revenue, expenses &amp; net income
-              </div>
-              <div style={{ display: "flex", gap: 16, fontSize: 13, color: "var(--ink-soft)" }}>
-                <Legend color="var(--chart-rev)" label="Revenue" />
-                <Legend color="var(--chart-exp)" label="Expenses" />
-                <Legend color="var(--chart-net)" label="Net income" line />
-              </div>
-            </div>
-            <TrendChart data={data} />
-          </div>
-
-          <div className="no-print grid-collapse" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
-            <div style={cardStyle}>
-              <div style={{ fontFamily: "var(--font-serif)", fontSize: 18, fontWeight: 700 }}>Balance sheet check</div>
-              <div style={{ fontSize: 13.5, color: "var(--muted)", marginTop: 4, marginBottom: 12 }}>
-                {snap.month} — assets equal liabilities plus equity
-              </div>
-              <BalanceChart row={snap} />
-            </div>
-            <div style={cardStyle}>
-              <div style={{ fontFamily: "var(--font-serif)", fontSize: 18, fontWeight: 700 }}>Where the money went</div>
-              <div style={{ fontSize: 13.5, color: "var(--muted)", marginTop: 4, marginBottom: 12 }}>
-                {snap.month} expense breakdown
-              </div>
-              <DonutChart row={snap} />
-            </div>
-          </div>
-
-          <div className="no-print grid-collapse" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
-            <div style={cardStyle}>
-              <div style={{ fontFamily: "var(--font-serif)", fontSize: 18, fontWeight: 700 }}>Cash position</div>
-              <div style={{ fontSize: 13.5, color: "var(--muted)", marginTop: 4, marginBottom: 12 }}>
-                Cash on hand by month
-              </div>
-              <LineChart
-                points={data.map((r) => ({ label: r.month, value: r.cash }))}
-                color="var(--chart-rev)"
-                format={usdK}
-                area
-              />
-            </div>
-            <div style={cardStyle}>
-              <div style={{ fontFamily: "var(--font-serif)", fontSize: 18, fontWeight: 700 }}>Net profit margin</div>
-              <div style={{ fontSize: 13.5, color: "var(--muted)", marginTop: 4, marginBottom: 12 }}>
-                Net income as a share of revenue
-              </div>
-              <LineChart
-                points={data.map((r) => ({ label: r.month, value: r.revenue ? (net(r) / r.revenue) * 100 : 0 }))}
-                color="var(--accent)"
-                format={(n) => `${Math.round(n)}%`}
-              />
+          {/* Tab bar */}
+          <div style={{ marginTop: 28, overflowX: "auto" }}>
+            <div
+              style={{
+                display: "inline-flex",
+                gap: 4,
+                padding: 4,
+                borderRadius: 12,
+                background: "var(--surface-2)",
+                border: "1px solid var(--border)",
+              }}
+            >
+              {TABS.map((t) => {
+                const active = tab === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => setTab(t.id)}
+                    style={{
+                      padding: "9px 18px",
+                      borderRadius: 9,
+                      border: "none",
+                      fontSize: 14,
+                      fontWeight: active ? 600 : 500,
+                      whiteSpace: "nowrap",
+                      background: active ? "var(--surface)" : "transparent",
+                      color: active ? "var(--ink)" : "var(--ink-soft)",
+                      boxShadow: active ? "var(--shadow)" : "none",
+                    }}
+                  >
+                    {t.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          <div className="no-print">
-            <Highlights data={data} />
-          </div>
-
-          <div className="no-print">
-            <div style={cardStyle}>
-              <div style={{ fontFamily: "var(--font-serif)", fontSize: 18, fontWeight: 700 }}>Monthly detail</div>
-              <div style={{ fontSize: 13.5, color: "var(--muted)", marginTop: 4, marginBottom: 14 }}>
-                Every month in the loaded period — most recent first
+          {/* Panels (kept mounted to preserve AI/note state) */}
+          <div style={{ marginTop: 20 }}>
+            {/* Overview */}
+            <Panel active={tab === "overview"}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+                <div style={cardStyle}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, marginBottom: 16 }}>
+                    <div style={{ fontFamily: "var(--font-serif)", fontSize: 18, fontWeight: 700 }}>
+                      Revenue, expenses &amp; net income
+                    </div>
+                    <div style={{ display: "flex", gap: 16, fontSize: 13, color: "var(--ink-soft)" }}>
+                      <Legend color="var(--chart-rev)" label="Revenue" />
+                      <Legend color="var(--chart-exp)" label="Expenses" />
+                      <Legend color="var(--chart-net)" label="Net income" line />
+                    </div>
+                  </div>
+                  <TrendChart data={data} />
+                </div>
+                <div>
+                  <div className="eyebrow" style={{ marginBottom: 12 }}>Month over month</div>
+                  <Highlights data={data} />
+                </div>
               </div>
-              <DataTable data={data} />
-            </div>
-          </div>
+            </Panel>
 
-          <div className="no-print">
-            <Forecast data={data} />
-          </div>
+            {/* Analysis */}
+            <Panel active={tab === "analysis"}>
+              <div className="grid-collapse" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
+                <div style={cardStyle}>
+                  <CardHeading title="Balance sheet check" sub={`${snap.month} — assets equal liabilities plus equity`} />
+                  <BalanceChart row={snap} />
+                </div>
+                <div style={cardStyle}>
+                  <CardHeading title="Where the money went" sub={`${snap.month} expense breakdown`} />
+                  <DonutChart row={snap} />
+                </div>
+                <div style={cardStyle}>
+                  <CardHeading title="Cash position" sub="Cash on hand by month" />
+                  <LineChart points={data.map((r) => ({ label: r.month, value: r.cash }))} color="var(--chart-rev)" format={usdK} area />
+                </div>
+                <div style={cardStyle}>
+                  <CardHeading title="Net profit margin" sub="Net income as a share of revenue" />
+                  <LineChart points={data.map((r) => ({ label: r.month, value: r.revenue ? (net(r) / r.revenue) * 100 : 0 }))} color="var(--accent)" format={(n) => `${Math.round(n)}%`} />
+                </div>
+              </div>
+            </Panel>
 
-          <div className="no-print">
-            <AiAssistant key={`ai-${sessionKey}`} data={data} clientName={dash!.clientName} />
-          </div>
+            {/* Forecast */}
+            <Panel active={tab === "forecast"}>
+              <Forecast data={data} />
+            </Panel>
 
-          <MonthlyNote key={`note-${sessionKey}`} data={data} clientName={dash!.clientName} />
-        </div>
+            {/* Data */}
+            <Panel active={tab === "data"}>
+              <div style={cardStyle}>
+                <CardHeading title="Monthly detail" sub="Every month in the loaded period — most recent first" />
+                <DataTable data={data} />
+              </div>
+            </Panel>
+
+            {/* Assistant */}
+            <Panel active={tab === "assistant"}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+                <AiAssistant key={`ai-${sessionKey}`} data={data} clientName={dash!.clientName} />
+                <MonthlyNote key={`note-${sessionKey}`} data={data} clientName={dash!.clientName} />
+              </div>
+            </Panel>
+          </div>
+        </>
       )}
     </div>
   );
 }
 
+function Panel({ active, children }: { active: boolean; children: React.ReactNode }) {
+  return <div className={active ? "fade-in" : undefined} style={{ display: active ? "block" : "none" }}>{children}</div>;
+}
+
 function Legend({ color, label, line }: { color: string; label: string; line?: boolean }) {
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-      <span style={{ width: line ? 14 : 11, height: line ? 3 : 11, borderRadius: line ? 2 : 2, background: color }} />
+      <span style={{ width: line ? 14 : 11, height: line ? 3 : 11, borderRadius: 2, background: color }} />
       {label}
     </span>
   );

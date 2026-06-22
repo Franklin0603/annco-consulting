@@ -63,5 +63,6 @@ export function sampleDashboard() {
     data,
     clientName: "Acme Bakery LLC",
     periodLabel: `${data[0].month} – ${data[data.length - 1].month} · trailing 12 months`,
+    source: "sample" as const,
   };
 }
