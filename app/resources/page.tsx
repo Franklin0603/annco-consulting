@@ -11,7 +11,7 @@ export default function ResourcesPage() {
   return (
     <section className="fade-up" style={{ maxWidth: 1100, margin: "0 auto", padding: "72px 28px 48px" }}>
       <div className="eyebrow">Resources</div>
-      <h1 style={{ fontFamily: "var(--font-serif)", fontSize: 44, fontWeight: 700, marginTop: 12, letterSpacing: "-.01em" }}>
+      <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(30px, 6.5vw, 44px)", fontWeight: 700, marginTop: 12, letterSpacing: "-.01em" }}>
         Deadlines &amp; official links.
       </h1>
       <p style={{ fontSize: 18, color: "var(--ink-soft)", marginTop: 16, maxWidth: 640, marginBottom: 36 }}>

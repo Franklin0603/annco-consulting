@@ -91,6 +91,14 @@ export default function DashboardPage() {
           >
             Load sample client
           </button>
+          <a
+            href="/sample-balance-sheet.csv"
+            download
+            className="mono"
+            style={{ alignSelf: "center", color: "var(--accent)", fontSize: 12.5, textDecoration: "none" }}
+          >
+            template ↓
+          </a>
         </div>
       </div>
 
@@ -152,6 +160,16 @@ export default function DashboardPage() {
           >
             Load sample client (Acme Bakery LLC)
           </button>
+          <div style={{ marginTop: 16 }}>
+            <a
+              href="/sample-balance-sheet.csv"
+              download
+              className="mono"
+              style={{ color: "var(--accent)", fontSize: 13, textDecoration: "none" }}
+            >
+              ⬇ Download a sample template (.csv) to try the upload
+            </a>
+          </div>
         </div>
       )}
 

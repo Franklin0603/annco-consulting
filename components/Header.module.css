@@ -1,0 +1,126 @@
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: color-mix(in srgb, var(--bg) 86%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 28px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.nav {
+  flex: 1;
+  display: flex;
+  gap: 4px;
+}
+
+.link {
+  text-decoration: none;
+  padding: 8px 13px;
+  border-radius: 8px;
+  font-size: 14.5px;
+  white-space: nowrap;
+}
+
+.phone {
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.iconBtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.cta {
+  text-decoration: none;
+  padding: 9px 16px;
+  border-radius: 9px;
+  background: var(--navy);
+  color: var(--bg);
+  font-weight: 600;
+  font-size: 14.5px;
+  white-space: nowrap;
+}
+
+/* Hamburger — hidden on desktop */
+.menuBtn {
+  display: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.mobileMenu {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .inner {
+    gap: 12px;
+  }
+  .nav,
+  .phone,
+  .cta {
+    display: none;
+  }
+  .spacer {
+    flex: 1;
+  }
+  .menuBtn {
+    display: block;
+  }
+  .mobileMenu {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 28px 18px;
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+  }
+  .mobileMenu .link {
+    font-size: 16px;
+    padding: 12px 14px;
+  }
+  .mobileCta {
+    margin-top: 6px;
+    text-align: center;
+  }
+  .mobilePhone {
+    padding: 12px 14px;
+    text-decoration: none;
+    color: var(--ink-soft);
+    font-size: 15px;
+  }
+}

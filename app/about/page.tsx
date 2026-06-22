@@ -16,7 +16,7 @@ export default function AboutPage() {
   return (
     <section className="fade-up" style={{ maxWidth: 1000, margin: "0 auto", padding: "72px 28px 48px" }}>
       <div className="eyebrow">About</div>
-      <h1 style={{ fontFamily: "var(--font-serif)", fontSize: 44, fontWeight: 700, marginTop: 12, letterSpacing: "-.01em" }}>
+      <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(30px, 6.5vw, 44px)", fontWeight: 700, marginTop: 12, letterSpacing: "-.01em" }}>
         A small firm that treats your books like its own.
       </h1>
 

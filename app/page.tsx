@@ -64,7 +64,7 @@ export default function HomePage() {
           gridTemplateColumns: "1.15fr .85fr",
           gap: 56,
           alignItems: "center",
-          padding: "80px 28px 40px",
+          padding: "clamp(48px, 9vw, 80px) 28px 40px",
           maxWidth: 1200,
           margin: "0 auto",
         }}
@@ -86,7 +86,7 @@ export default function HomePage() {
           <h1
             style={{
               fontFamily: "var(--font-serif)",
-              fontSize: 54,
+              fontSize: "clamp(34px, 7.5vw, 54px)",
               fontWeight: 700,
               lineHeight: 1.06,
               letterSpacing: "-.02em",

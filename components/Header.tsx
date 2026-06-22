@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import styles from "./Header.module.css";
 
 const NAV: [string, string][] = [
   ["/", "Home"],
@@ -15,10 +16,16 @@ const NAV: [string, string][] = [
 export function Header() {
   const pathname = usePathname();
   const [dark, setDark] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     setDark(document.documentElement.getAttribute("data-theme") === "dark");
   }, []);
+
+  // Close the mobile menu whenever the route changes.
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
 
   const toggle = () => {
     const next = !dark;
@@ -31,41 +38,19 @@ export function Header() {
     }
   };
 
+  const linkStyle = (href: string): React.CSSProperties => {
+    const active = pathname === href;
+    return {
+      fontWeight: active ? 600 : 500,
+      background: active ? "var(--accent-soft)" : "none",
+      color: active ? "var(--accent)" : "var(--ink-soft)",
+    };
+  };
+
   return (
-    <header
-      style={{
-        position: "sticky",
-        top: 0,
-        zIndex: 50,
-        background: "color-mix(in srgb, var(--bg) 86%, transparent)",
-        backdropFilter: "blur(10px)",
-        WebkitBackdropFilter: "blur(10px)",
-        borderBottom: "1px solid var(--border)",
-      }}
-    >
-      <div
-        style={{
-          maxWidth: 1200,
-          margin: "0 auto",
-          padding: "0 28px",
-          height: 68,
-          display: "flex",
-          alignItems: "center",
-          gap: 20,
-          flexWrap: "wrap",
-        }}
-      >
-        <Link
-          href="/"
-          aria-label="Annco home"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            textDecoration: "none",
-            color: "var(--ink)",
-          }}
-        >
+    <header className={`${styles.bar} no-print`}>
+      <div className={styles.inner}>
+        <Link href="/" aria-label="Annco home" className={styles.logo}>
           <span
             style={{
               width: 34,
@@ -88,74 +73,53 @@ export function Header() {
           </span>
         </Link>
 
-        <nav style={{ flex: 1, display: "flex", gap: 4, flexWrap: "wrap" }}>
-          {NAV.map(([href, label]) => {
-            const active = pathname === href;
-            return (
-              <Link
-                key={href}
-                href={href}
-                style={{
-                  textDecoration: "none",
-                  padding: "8px 13px",
-                  borderRadius: 8,
-                  fontSize: 14.5,
-                  fontWeight: active ? 600 : 500,
-                  background: active ? "var(--accent-soft)" : "none",
-                  color: active ? "var(--accent)" : "var(--ink-soft)",
-                }}
-              >
-                {label}
-              </Link>
-            );
-          })}
+        <nav className={styles.nav}>
+          {NAV.map(([href, label]) => (
+            <Link key={href} href={href} className={styles.link} style={linkStyle(href)}>
+              {label}
+            </Link>
+          ))}
         </nav>
 
-        <a
-          href="tel:+17185550142"
-          className="mono"
-          style={{
-            fontSize: 13.5,
-            color: "var(--ink-soft)",
-            textDecoration: "none",
-            whiteSpace: "nowrap",
-          }}
-        >
+        <span className={styles.spacer} />
+
+        <a href="tel:+17185550142" className={`${styles.phone} mono`}>
           (718) 555-0142
         </a>
 
-        <button
-          onClick={toggle}
-          aria-label="Toggle theme"
-          style={{
-            width: 38,
-            height: 38,
-            borderRadius: 9,
-            border: "1px solid var(--border)",
-            background: "var(--surface)",
-            color: "var(--ink)",
-            fontSize: 16,
-          }}
-        >
+        <button onClick={toggle} aria-label="Toggle theme" className={styles.iconBtn}>
           {dark ? "☀" : "☾"}
         </button>
 
-        <Link
-          href="/dashboard"
-          style={{
-            textDecoration: "none",
-            padding: "9px 16px",
-            borderRadius: 9,
-            background: "var(--navy)",
-            color: "var(--bg)",
-            fontWeight: 600,
-            fontSize: 14.5,
-            whiteSpace: "nowrap",
-          }}
-        >
+        <Link href="/dashboard" className={styles.cta}>
           Client Dashboard
         </Link>
+
+        <button
+          onClick={() => setMenuOpen((o) => !o)}
+          aria-label="Toggle menu"
+          aria-expanded={menuOpen}
+          className={styles.menuBtn}
+        >
+          {menuOpen ? "✕" : "☰"}
+        </button>
       </div>
+
+      {menuOpen && (
+        <div className={styles.mobileMenu}>
+          {NAV.map(([href, label]) => (
+            <Link key={href} href={href} className={styles.link} style={linkStyle(href)}>
+              {label}
+            </Link>
+          ))}
+          <Link href="/dashboard" className={`${styles.cta} ${styles.mobileCta}`}>
+            Client Dashboard
+          </Link>
+          <a href="tel:+17185550142" className={`${styles.mobilePhone} mono`}>
+            ☎ (718) 555-0142
+          </a>
+        </div>
+      )}
     </header>
   );
 }
