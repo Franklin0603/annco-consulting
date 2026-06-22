@@ -6,11 +6,15 @@ import { sampleDashboard } from "@/lib/sample";
 import { parseFile } from "@/lib/parse";
 import { KpiRow } from "@/components/dashboard/KpiRow";
 import { Highlights } from "@/components/dashboard/Highlights";
+import { DataTable } from "@/components/dashboard/DataTable";
+import { Forecast } from "@/components/dashboard/Forecast";
 import { TrendChart } from "@/components/charts/TrendChart";
 import { BalanceChart } from "@/components/charts/BalanceChart";
 import { DonutChart } from "@/components/charts/DonutChart";
+import { LineChart } from "@/components/charts/LineChart";
 import { AiAssistant } from "@/components/dashboard/AiAssistant";
 import { MonthlyNote } from "@/components/dashboard/MonthlyNote";
+import { net, usdK } from "@/lib/finance";
 
 const cardStyle: React.CSSProperties = {
   background: "var(--surface)",
@@ -211,8 +215,48 @@ export default function DashboardPage() {
             </div>
           </div>
 
+          <div className="no-print grid-collapse" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
+            <div style={cardStyle}>
+              <div style={{ fontFamily: "var(--font-serif)", fontSize: 18, fontWeight: 700 }}>Cash position</div>
+              <div style={{ fontSize: 13.5, color: "var(--muted)", marginTop: 4, marginBottom: 12 }}>
+                Cash on hand by month
+              </div>
+              <LineChart
+                points={data.map((r) => ({ label: r.month, value: r.cash }))}
+                color="var(--chart-rev)"
+                format={usdK}
+                area
+              />
+            </div>
+            <div style={cardStyle}>
+              <div style={{ fontFamily: "var(--font-serif)", fontSize: 18, fontWeight: 700 }}>Net profit margin</div>
+              <div style={{ fontSize: 13.5, color: "var(--muted)", marginTop: 4, marginBottom: 12 }}>
+                Net income as a share of revenue
+              </div>
+              <LineChart
+                points={data.map((r) => ({ label: r.month, value: r.revenue ? (net(r) / r.revenue) * 100 : 0 }))}
+                color="var(--accent)"
+                format={(n) => `${Math.round(n)}%`}
+              />
+            </div>
+          </div>
+
           <div className="no-print">
             <Highlights data={data} />
+          </div>
+
+          <div className="no-print">
+            <div style={cardStyle}>
+              <div style={{ fontFamily: "var(--font-serif)", fontSize: 18, fontWeight: 700 }}>Monthly detail</div>
+              <div style={{ fontSize: 13.5, color: "var(--muted)", marginTop: 4, marginBottom: 14 }}>
+                Every month in the loaded period — most recent first
+              </div>
+              <DataTable data={data} />
+            </div>
+          </div>
+
+          <div className="no-print">
+            <Forecast data={data} />
           </div>
 
           <div className="no-print">
