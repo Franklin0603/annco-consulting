@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  button{font-family:inherit;cursor:pointer}
+  input,textarea{font-family:inherit}
+  ::placeholder{color:#a39c8c}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @keyframes blink{0%,100%{opacity:.25}50%{opacity:1}}
+  @media print{@page{margin:0.6in}}
+</style>
+</helmet>
+<div ref="{{ rootRef }}" style="--bg:#f6f1e7;--surface:#fffdf8;--surface-2:#efe7d7;--ink:#16243f;--ink-soft:#4a5468;--muted:#8d8775;--border:#e7ddcb;--navy:#16243f;--navy-2:#22355a;--accent:#b8842f;--accent-soft:rgba(184,132,47,0.12);--pos:#2f7d54;--neg:#b1402f;--chart-rev:#16243f;--chart-exp:#cdbb92;--chart-net:#b8842f;--shadow:0 1px 2px rgba(22,36,63,.06),0 8px 24px rgba(22,36,63,.06);min-height:100vh;background:var(--bg);color:var(--ink);font-size:16px;line-height:1.55;transition:background .3s,color .3s">
+
+  <sc-if value="{{ showPrint }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:760px;margin:0 auto;padding:56px 48px;background:#fff;color:#16243f;font-size:15px;line-height:1.7">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #16243f;padding-bottom:18px;margin-bottom:28px">
+        <div>
+          <div style="font-family:Georgia,serif;font-size:24px;font-weight:700;letter-spacing:-.01em">Annco Consulting, LLC</div>
+          <div style="font-size:12px;color:#6b7384;letter-spacing:.04em;text-transform:uppercase;margin-top:4px">Certified Public Accountants · Bronx, NY</div>
+        </div>
+        <div style="text-align:right;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#6b7384">{{ noteDateLong }}</div>
+      </div>
+      <div style="white-space:pre-wrap;font-size:15px">{{ note }}</div>
+      <div style="margin-top:40px;border-top:1px solid #d9d0bf;padding-top:14px;font-size:11px;color:#9a9384;font-family:'IBM Plex Mono',monospace">Prepared by Annco Consulting, LLC · (718) 555-0142 · info@anncocpa.com · Synthetic demonstration data.</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ showApp }}" hint-placeholder-val="{{ true }}">
+    <!-- ===== NAV ===== -->
+    <header style="position:sticky;top:0;z-index:50;background:color-mix(in srgb, var(--bg) 86%, transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)">
+      <div style="max-width:1200px;margin:0 auto;padding:0 28px;height:68px;display:flex;align-items:center;gap:28px">
+        <button onClick="{{ goHome }}" style="display:flex;align-items:center;gap:11px;background:none;border:none;padding:0">
+          <span style="width:34px;height:34px;border-radius:7px;background:var(--navy);color:#f6f1e7;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-weight:700;font-size:19px">A</span>
+          <span style="font-family:Georgia,serif;font-size:20px;font-weight:700;color:var(--ink);letter-spacing:-.01em">Annco<span style="color:var(--accent)">.</span></span>
+        </button>
+        <div style="flex:1;display:flex;align-items:center;gap:2px">{{ navLinks }}</div>
+        <a href="tel:+17185550142" style="display:none;align-items:center;gap:7px;color:var(--ink-soft);text-decoration:none;font-size:14px;font-family:'IBM Plex Mono',monospace" class="navphone">(718) 555-0142</a>
+        <button onClick="{{ toggleDark }}" title="Toggle theme" style="width:38px;height:38px;border-radius:9px;border:1px solid var(--border);background:var(--surface);color:var(--ink);display:flex;align-items:center;justify-content:center;font-size:15px">{{ darkIcon }}</button>
+        <button onClick="{{ goDashboard }}" style="padding:9px 16px;border-radius:9px;border:1px solid var(--navy);background:var(--navy);color:#f6f1e7;font-size:14px;font-weight:600;white-space:nowrap;flex-shrink:0">Client Dashboard</button>
+      </div>
+    </header>
+
+    <main>
+      <!-- ===== HOME ===== -->
+      <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+        <section style="max-width:1200px;margin:0 auto;padding:80px 28px 40px;display:grid;grid-template-columns:1.15fr .85fr;gap:56px;align-items:center" class="herogrid">
+          <div style="animation:fadeUp .6s ease both">
+            <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 13px;border-radius:100px;background:var(--accent-soft);color:var(--accent);font-size:13px;font-weight:600;font-family:'IBM Plex Mono',monospace;margin-bottom:22px">★ Trusted by Bronx businesses since 2009</div>
+            <h1 style="font-family:Georgia,serif;font-size:54px;line-height:1.06;letter-spacing:-.02em;font-weight:700;text-wrap:balance">Accounting that gives you back your time.</h1>
+            <p style="font-size:19px;color:var(--ink-soft);margin-top:22px;max-width:30em">Annco Consulting helps private businesses across New York stay compliant, plan ahead, and understand their numbers — without the jargon.</p>
+            <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:34px">
+              <button onClick="{{ goContact }}" style="padding:15px 26px;border-radius:11px;border:none;background:var(--accent);color:#fff;font-size:16px;font-weight:600;box-shadow:0 8px 20px rgba(184,132,47,.28)">Schedule a free consultation</button>
+              <a href="tel:+17185550142" style="padding:15px 24px;border-radius:11px;border:1px solid var(--border);background:var(--surface);color:var(--ink);font-size:16px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:9px">☎ (718) 555-0142</a>
+            </div>
+          </div>
+          <div style="animation:fadeUp .7s .1s ease both">{{ heroCard }}</div>
+        </section>
+
+        <section style="max-width:1200px;margin:0 auto;padding:44px 28px">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:20px;margin-bottom:26px">
+            <h2 style="font-family:Georgia,serif;font-size:30px;font-weight:700;letter-spacing:-.01em">What we do</h2>
+            <button onClick="{{ goServices }}" style="background:none;border:none;color:var(--accent);font-weight:600;font-size:15px">All services →</button>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px" class="svc3">{{ servicesPreview }}</div>
+        </section>
+
+        <section style="max-width:1200px;margin:0 auto;padding:44px 28px">
+          <div style="background:var(--navy);border-radius:20px;padding:40px;display:grid;grid-template-columns:1fr auto;gap:32px;align-items:center;color:#f6f1e7" class="cdwrap">
+            <div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:600">Next IRS deadline</div>
+              <div style="font-family:Georgia,serif;font-size:30px;font-weight:700;margin-top:8px">{{ deadlineLabel }}</div>
+              <div style="color:#c7cdd9;margin-top:6px;font-size:15px">{{ deadlineDateLong }}</div>
+            </div>
+            <div>{{ homeCountdown }}</div>
+          </div>
+        </section>
+      </sc-if>
+
+      <!-- ===== SERVICES ===== -->
+      <sc-if value="{{ isServices }}" hint-placeholder-val="{{ false }}">
+        <section style="max-width:1100px;margin:0 auto;padding:72px 28px 48px;animation:fadeIn .4s ease both">
+          <div style="max-width:40em">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:600">Services</div>
+            <h1 style="font-family:Georgia,serif;font-size:44px;font-weight:700;letter-spacing:-.02em;margin-top:10px">Full-service accounting for owners who'd rather run their business.</h1>
+            <p style="font-size:18px;color:var(--ink-soft);margin-top:18px">From day-to-day books to year-end strategy, we meet you where you are.</p>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:40px" class="svc2">{{ servicesFull }}</div>
+        </section>
+      </sc-if>
+
+      <!-- ===== RESOURCES ===== -->
+      <sc-if value="{{ isResources }}" hint-placeholder-val="{{ false }}">
+        <section style="max-width:1100px;margin:0 auto;padding:72px 28px 48px;animation:fadeIn .4s ease both">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:600">Resources</div>
+          <h1 style="font-family:Georgia,serif;font-size:44px;font-weight:700;letter-spacing:-.02em;margin-top:10px">Deadlines & quick links</h1>
+
+          <div style="background:var(--navy);border-radius:20px;padding:40px;margin-top:32px;color:#f6f1e7">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:600">Counting down to</div>
+            <div style="font-family:Georgia,serif;font-size:34px;font-weight:700;margin-top:8px">{{ deadlineLabel }}</div>
+            <div style="color:#c7cdd9;margin-top:4px;font-size:16px">{{ deadlineDateLong }}</div>
+            <div style="margin-top:28px">{{ resourcesCountdown }}</div>
+            <div style="margin-top:24px;font-size:13px;color:#9aa3b3">Estimated-tax dates: Apr 15 · Jun 15 · Sep 15 · Oct 15 · Jan 15. Computed live in your browser.</div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:28px" class="svc3">{{ resourceLinks }}</div>
+        </section>
+      </sc-if>
+
+      <!-- ===== ABOUT ===== -->
+      <sc-if value="{{ isAbout }}" hint-placeholder-val="{{ false }}">
+        <section style="max-width:1000px;margin:0 auto;padding:72px 28px 48px;animation:fadeIn .4s ease both">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:600">About</div>
+          <h1 style="font-family:Georgia,serif;font-size:44px;font-weight:700;letter-spacing:-.02em;margin-top:10px;max-width:18em">A small firm that treats your books like its own.</h1>
+          <div style="display:grid;grid-template-columns:1.3fr .7fr;gap:48px;margin-top:36px;align-items:start" class="aboutgrid">
+            <div style="font-size:18px;color:var(--ink-soft);display:flex;flex-direction:column;gap:18px">
+              <p>Annco Consulting, LLC is a Bronx-based CPA practice serving privately held businesses, nonprofits, and their owners across the New York metro area. We pair the rigor you'd expect from a large firm with the responsiveness of a team that actually picks up the phone.</p>
+              <p>Our clients range from neighborhood bakeries and contractors to multi-location service businesses. Whatever the size, the goal is the same: clean books, no surprises at tax time, and a clear view of where the business is headed.</p>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px">
+                <div><div style="font-family:'IBM Plex Mono',monospace;font-size:34px;font-weight:600;color:var(--ink)">15+</div><div style="font-size:14px;color:var(--muted)">Years in the Bronx</div></div>
+                <div><div style="font-family:'IBM Plex Mono',monospace;font-size:34px;font-weight:600;color:var(--ink)">200+</div><div style="font-size:14px;color:var(--muted)">Businesses served</div></div>
+                <div><div style="font-family:'IBM Plex Mono',monospace;font-size:34px;font-weight:600;color:var(--ink)">100%</div><div style="font-size:14px;color:var(--muted)">On-time filings</div></div>
+              </div>
+            </div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:var(--shadow)">
+              <div style="font-family:Georgia,serif;font-size:18px;font-weight:700;margin-bottom:14px">Office</div>
+              <div style="font-size:15px;color:var(--ink-soft);line-height:1.8">123 Grand Concourse<br>Bronx, NY 10451<br><span style="font-family:'IBM Plex Mono',monospace">(718) 555-0142</span><br>info@anncocpa.com</div>
+              <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--border);font-size:14px;color:var(--muted)">Mon–Fri · 9:00–6:00<br>Extended hours Jan–Apr</div>
+            </div>
+          </div>
+        </section>
+      </sc-if>
+
+      <!-- ===== CONTACT ===== -->
+      <sc-if value="{{ isContact }}" hint-placeholder-val="{{ false }}">
+        <section style="max-width:760px;margin:0 auto;padding:72px 28px 56px;animation:fadeIn .4s ease both">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:600">Contact</div>
+          <h1 style="font-family:Georgia,serif;font-size:44px;font-weight:700;letter-spacing:-.02em;margin-top:10px">Schedule a free consultation</h1>
+          <p style="font-size:18px;color:var(--ink-soft);margin-top:14px">Tell us a little about your business. We'll reply within one business day — or call <a href="tel:+17185550142" style="color:var(--accent);font-weight:600;text-decoration:none">(718) 555-0142</a>.</p>
+
+          <sc-if value="{{ contactDone }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:32px;background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--pos);border-radius:14px;padding:32px;box-shadow:var(--shadow);animation:fadeUp .4s ease both">
+              <div style="font-size:36px">✓</div>
+              <div style="font-family:Georgia,serif;font-size:24px;font-weight:700;margin-top:6px">Thanks, {{ contactName }} — we've got it.</div>
+              <p style="color:var(--ink-soft);margin-top:8px">A member of our team will reach out to <span style="font-family:'IBM Plex Mono',monospace">{{ contactEmail }}</span> shortly to find a time. This is a demo, so no message was actually sent.</p>
+              <button onClick="{{ resetContact }}" style="margin-top:18px;padding:11px 18px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--ink);font-weight:600">Send another</button>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ contactOpen }}" hint-placeholder-val="{{ true }}">
+            <div style="margin-top:32px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:30px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:18px">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px" class="cform2">
+                <label style="display:flex;flex-direction:column;gap:7px;font-size:14px;font-weight:600;color:var(--ink-soft)">Name<input ref="{{ refName }}" placeholder="Jane Owner" style="padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--ink);font-size:15px"></label>
+                <label style="display:flex;flex-direction:column;gap:7px;font-size:14px;font-weight:600;color:var(--ink-soft)">Email<input ref="{{ refEmail }}" type="email" placeholder="jane@business.com" style="padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--ink);font-size:15px"></label>
+              </div>
+              <label style="display:flex;flex-direction:column;gap:7px;font-size:14px;font-weight:600;color:var(--ink-soft)">Business name<input ref="{{ refBiz }}" placeholder="Acme Bakery LLC" style="padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--ink);font-size:15px"></label>
+              <label style="display:flex;flex-direction:column;gap:7px;font-size:14px;font-weight:600;color:var(--ink-soft)">How can we help?<textarea ref="{{ refMsg }}" rows="4" placeholder="We're behind on bookkeeping and have a sales-tax filing coming up…" style="padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--ink);font-size:15px;resize:vertical"></textarea></label>
+              <sc-if value="{{ contactError }}" hint-placeholder-val="{{ false }}"><div style="color:var(--neg);font-size:14px;font-weight:600">Please enter your name and a valid email.</div></sc-if>
+              <button onClick="{{ submitContact }}" style="padding:15px;border-radius:11px;border:none;background:var(--accent);color:#fff;font-size:16px;font-weight:600;box-shadow:0 8px 20px rgba(184,132,47,.25)">Request my consultation</button>
+            </div>
+          </sc-if>
+        </section>
+      </sc-if>
+
+      <!-- ===== DASHBOARD ===== -->
+      <sc-if value="{{ isDashboard }}" hint-placeholder-val="{{ false }}">
+        <section style="max-width:1200px;margin:0 auto;padding:40px 28px 64px;animation:fadeIn .4s ease both">
+          <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:18px">
+            <div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:600">Client dashboard</div>
+              <h1 style="font-family:Georgia,serif;font-size:34px;font-weight:700;letter-spacing:-.01em;margin-top:6px">{{ clientName }}</h1>
+              <div style="color:var(--muted);font-size:14px;margin-top:2px">{{ periodLabel }}</div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center">
+              <label style="padding:11px 16px;border-radius:10px;border:1px dashed var(--border);background:var(--surface);color:var(--ink-soft);font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:8px">⬆ Upload .csv / .xlsx<input type="file" accept=".csv,.xlsx,.xls" onChange="{{ onFile }}" style="display:none"></label>
+              <button onClick="{{ loadSample }}" style="padding:11px 16px;border-radius:10px;border:none;background:var(--navy);color:#f6f1e7;font-size:14px;font-weight:600">Load sample client</button>
+            </div>
+          </div>
+
+          <sc-if value="{{ uploadMsg }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:16px;background:var(--accent-soft);border:1px solid var(--accent);border-radius:10px;padding:12px 16px;color:var(--ink);font-size:14px">{{ uploadMsg }}</div>
+          </sc-if>
+
+          <!-- EMPTY STATE -->
+          <sc-if value="{{ noData }}" hint-placeholder-val="{{ true }}">
+            <div onDragOver="{{ onDragOver }}" onDrop="{{ onDrop }}" style="margin-top:28px;border:2px dashed var(--border);border-radius:20px;padding:72px 32px;text-align:center;background:var(--surface)">
+              <div style="font-size:46px;color:var(--muted)">⬗</div>
+              <div style="font-family:Georgia,serif;font-size:24px;font-weight:700;margin-top:12px">Drop a monthly balance sheet to begin</div>
+              <p style="color:var(--ink-soft);max-width:34em;margin:10px auto 0">Drag a <strong>.csv</strong> or <strong>.xlsx</strong> here, or use the sample client so you can see the dashboard right away.</p>
+              <button onClick="{{ loadSample }}" style="margin-top:22px;padding:14px 24px;border-radius:11px;border:none;background:var(--accent);color:#fff;font-size:15px;font-weight:600;box-shadow:0 8px 20px rgba(184,132,47,.25)">Load sample client (Acme Bakery LLC)</button>
+            </div>
+          </sc-if>
+
+          <!-- DATA -->
+          <sc-if value="{{ hasData }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:24px">{{ kpiRow }}</div>
+
+            <div style="margin-top:18px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px 24px;box-shadow:var(--shadow)">
+              <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:8px">
+                <div style="font-family:Georgia,serif;font-size:19px;font-weight:700">Revenue, expenses & net income</div>
+                <div style="display:flex;gap:16px;font-size:13px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace">
+                  <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:11px;height:11px;border-radius:2px;background:var(--chart-rev)"></span>Revenue</span>
+                  <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:11px;height:11px;border-radius:2px;background:var(--chart-exp)"></span>Expenses</span>
+                  <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:14px;height:3px;border-radius:2px;background:var(--chart-net)"></span>Net income</span>
+                </div>
+              </div>
+              {{ trendChart }}
+            </div>
+
+            <div style="margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:18px" class="two">
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px 24px;box-shadow:var(--shadow)">
+                <div style="font-family:Georgia,serif;font-size:19px;font-weight:700;margin-bottom:4px">Balance sheet check</div>
+                <div style="font-size:13px;color:var(--muted);margin-bottom:10px">{{ snapshotLabel }} — assets equal liabilities plus equity</div>
+                {{ balanceChart }}
+              </div>
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px 24px;box-shadow:var(--shadow)">
+                <div style="font-family:Georgia,serif;font-size:19px;font-weight:700;margin-bottom:4px">Where the money went</div>
+                <div style="font-size:13px;color:var(--muted);margin-bottom:10px">{{ snapshotLabel }} expense breakdown</div>
+                {{ donutChart }}
+              </div>
+            </div>
+
+            <div style="margin-top:18px">
+              <div style="font-family:Georgia,serif;font-size:19px;font-weight:700;margin-bottom:12px">Month-over-month highlights</div>
+              {{ highlightsView }}
+            </div>
+
+            <!-- AI ASSISTANT -->
+            <div style="margin-top:34px;background:var(--navy);border-radius:20px;padding:26px;color:#f6f1e7">
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
+                <span style="width:38px;height:38px;border-radius:10px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:19px">✦</span>
+                <div>
+                  <div style="font-family:Georgia,serif;font-size:21px;font-weight:700">Ask Annco AI</div>
+                  <div style="font-size:13px;color:#aab2c2">Questions answered live from {{ clientName }}'s numbers</div>
+                </div>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:9px;margin:16px 0">{{ suggestChips }}</div>
+              {{ chatView }}
+              <div style="display:flex;gap:10px;margin-top:14px">
+                <input ref="{{ refChat }}" onKeyDown="{{ onChatKey }}" placeholder="e.g. Why did net income drop in January?" style="flex:1;padding:13px 16px;border-radius:11px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#f6f1e7;font-size:15px">
+                <button onClick="{{ sendChat }}" style="padding:13px 22px;border-radius:11px;border:none;background:var(--accent);color:#fff;font-weight:600;font-size:15px">Ask</button>
+              </div>
+            </div>
+
+            <!-- MONTHLY NOTE -->
+            <div style="margin-top:18px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:26px;box-shadow:var(--shadow)">
+              <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+                <div>
+                  <div style="font-family:Georgia,serif;font-size:21px;font-weight:700">Monthly client note</div>
+                  <div style="font-size:13px;color:var(--muted)">Auto-drafted summary you can send to {{ clientName }}</div>
+                </div>
+                <div style="display:flex;gap:10px">
+                  <button onClick="{{ draftNote }}" style="padding:12px 18px;border-radius:11px;border:none;background:var(--accent);color:#fff;font-weight:600;font-size:14px">{{ noteBtnLabel }}</button>
+                  <sc-if value="{{ hasNote }}" hint-placeholder-val="{{ false }}"><button onClick="{{ printNote }}" style="padding:12px 18px;border-radius:11px;border:1px solid var(--border);background:var(--surface-2);color:var(--ink);font-weight:600;font-size:14px">⎙ Print / PDF</button></sc-if>
+                </div>
+              </div>
+              <sc-if value="{{ hasNote }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-top:18px;background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:26px;font-size:15px;line-height:1.7;white-space:pre-wrap;animation:fadeIn .4s ease both">{{ note }}</div>
+              </sc-if>
+              <sc-if value="{{ noteEmpty }}" hint-placeholder-val="{{ true }}">
+                <div style="margin-top:18px;border:1px dashed var(--border);border-radius:14px;padding:30px;text-align:center;color:var(--muted);font-size:14px">No note yet — click <strong>Draft monthly note</strong> and Annco AI will write one from this month's results.</div>
+              </sc-if>
+            </div>
+          </sc-if>
+        </section>
+      </sc-if>
+    </main>
+
+    <footer style="border-top:1px solid var(--border);margin-top:40px">
+      <div style="max-width:1200px;margin:0 auto;padding:34px 28px;display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;align-items:center;color:var(--muted);font-size:14px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="width:26px;height:26px;border-radius:6px;background:var(--navy);color:#f6f1e7;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-weight:700;font-size:15px">A</span><span>Annco Consulting, LLC · Bronx, NY</span></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:13px">Demo on synthetic data · not financial advice</div>
+      </div>
+    </footer>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    route: 'home', dark: false,
+    data: null, clientName: '', periodLabel: '', uploadMsg: '',
+    contactDone: false, contactName: '', contactEmail: '', contactError: false,
+    chat: [], chatLoading: false,
+    note: '', noteLoading: false, printing: false
+  };
+
+  // ---------- lifecycle ----------
+  componentDidMount() {
+    try { if (localStorage.getItem('annco-dark') === '1') this.setState({ dark: true }); } catch (e) {}
+    this.cd = {};
+    this.tick();
+    this.timer = setInterval(() => this.tick(), 1000);
+  }
+  componentWillUnmount() { clearInterval(this.timer); }
+
+  applyTheme(el, dark) {
+    if (!el) return;
+    const t = dark
+      ? { '--bg':'#0d1524','--surface':'#15213a','--surface-2':'#1b2840','--ink':'#f2ece0','--ink-soft':'#b7bfce','--muted':'#838da0','--border':'#27334c','--navy':'#16243f','--navy-2':'#22355a','--accent':'#d2a14f','--accent-soft':'rgba(210,161,79,0.16)','--pos':'#5bbd86','--neg':'#e0795f','--chart-rev':'#9db4e0','--chart-exp':'#cdbb92','--chart-net':'#d2a14f','--shadow':'0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35)' }
+      : { '--bg':'#f6f1e7','--surface':'#fffdf8','--surface-2':'#efe7d7','--ink':'#16243f','--ink-soft':'#4a5468','--muted':'#8d8775','--border':'#e7ddcb','--navy':'#16243f','--navy-2':'#22355a','--accent':'#b8842f','--accent-soft':'rgba(184,132,47,0.12)','--pos':'#2f7d54','--neg':'#b1402f','--chart-rev':'#16243f','--chart-exp':'#cdbb92','--chart-net':'#b8842f','--shadow':'0 1px 2px rgba(22,36,63,.06),0 8px 24px rgba(22,36,63,.06)' };
+    Object.keys(t).forEach(k => el.style.setProperty(k, t[k]));
+    el.style.setProperty('background', t['--bg']);
+    el.style.setProperty('color', t['--ink']);
+  }
+
+  // ---------- deadline countdown ----------
+  nextDeadline() {
+    const now = new Date();
+    const md = [[3,15],[5,15],[8,15],[9,15],[0,15]]; // Apr15,Jun15,Sep15,Oct15,Jan15
+    const cands = [];
+    [now.getFullYear(), now.getFullYear()+1].forEach(y => md.forEach(([m,d]) => cands.push(new Date(y,m,d,0,0,0))));
+    cands.sort((a,b)=>a-b);
+    return cands.find(d => d > now);
+  }
+  tick() {
+    const d = this.nextDeadline();
+    const diff = Math.max(0, d - new Date());
+    const days = Math.floor(diff/86400000);
+    const hrs = Math.floor(diff%86400000/3600000);
+    const min = Math.floor(diff%3600000/60000);
+    const sec = Math.floor(diff%60000/1000);
+    const v = { D: String(days), H: String(hrs).padStart(2,'0'), M: String(min).padStart(2,'0'), S: String(sec).padStart(2,'0') };
+    Object.keys(this.cd).forEach(k => { const parts = k.split('|'); const u = parts[1]; if (this.cd[k]) this.cd[k].textContent = v[u]; });
+  }
+
+  // ---------- sample data ----------
+  buildSample() {
+    const f = (month,revenue,cogs,payroll,rent,marketing,utilities,supplies,other,cash,ar,inventory,equipment,ap,loans,cc) =>
+      ({month,revenue,cogs,payroll,rent,marketing,utilities,supplies,other,cash,ar,inventory,equipment,ap,loans,cc});
+    return [
+      f('Jun 2025',78000,23400,29000,6500,2200,2100,2600,2400,44000,9000,14000,88000,11000,120000,6000),
+      f('Jul 2025',72000,21600,28000,6500,2000,2300,2400,2200,46000,8000,13000,87500,10000,119000,5500),
+      f('Aug 2025',70000,21000,28000,6500,1800,2500,2300,2100,47500,7500,13500,87000,9500,118000,5000),
+      f('Sep 2025',81000,24300,30000,6500,2500,2200,2700,2300,50000,10000,15000,86500,12000,117000,6000),
+      f('Oct 2025',92000,27600,32000,6500,3000,2300,3000,2600,54000,12000,18000,86000,14000,116000,6500),
+      f('Nov 2025',118000,35400,38000,6500,3800,2600,3800,3000,62000,16000,22000,85500,18000,115000,7500),
+      f('Dec 2025',142000,42600,42000,6500,4200,2800,4200,3400,78000,18000,16000,85000,20000,114000,8500),
+      f('Jan 2026',64000,19200,27000,6500,2000,2700,2200,2100,80000,8000,12000,84500,9000,113000,5000),
+      f('Feb 2026',98000,29400,31000,6500,3200,2600,3100,2500,86000,11000,14000,84000,12000,112000,6000),
+      f('Mar 2026',86000,25800,30000,6500,2600,2300,2800,2400,90000,10000,14500,83500,11000,111000,5500),
+      f('Apr 2026',91000,27300,31000,6500,2800,2100,2900,2400,95000,11500,15000,83000,12500,110000,5800),
+      f('May 2026',103000,30900,33000,6500,3200,2000,3200,2600,102000,13000,16000,82500,13500,109000,6200)
+    ];
+  }
+  loadSample = () => {
+    const data = this.buildSample();
+    this.setState({ data, clientName: 'Acme Bakery LLC', periodLabel: data[0].month + ' – ' + data[data.length-1].month + ' · trailing 12 months', uploadMsg: '', note: '', chat: [] });
+  };
+
+  // ---------- parsing ----------
+  num(v){ if(v==null) return 0; const n = parseFloat(String(v).replace(/[$,\s]/g,'')); return isNaN(n)?0:n; }
+  mapRows(objs){
+    const dict = {
+      month:['month','date','period','mon'], revenue:['revenue','sales','income','totalrevenue','grossrevenue','totalsales'],
+      cogs:['cogs','costofgoods','costofgoodssold','cost'], payroll:['payroll','wages','salaries','salary','labor'],
+      rent:['rent','lease'], marketing:['marketing','advertising','ads','promotion'], utilities:['utilities','utility'],
+      supplies:['supplies','materials'], other:['other','otherexpense','misc','miscellaneous'],
+      cash:['cash','bank','checking'], ar:['ar','accountsreceivable','receivables','receivable'],
+      inventory:['inventory','stock'], equipment:['equipment','fixedassets','ppe','property','assetsfixed'],
+      ap:['ap','accountspayable','payables','payable'], loans:['loans','loan','notespayable','debt','longtermdebt'],
+      cc:['cc','creditcard','creditcards','card']
+    };
+    const norm = s => String(s).toLowerCase().replace(/[^a-z]/g,'');
+    const out = objs.map(o => {
+      const keys = {}; Object.keys(o).forEach(k => keys[norm(k)] = o[k]);
+      const get = field => { for (const a of dict[field]) if (a in keys) return keys[a]; return undefined; };
+      const r = {};
+      r.month = get('month') != null ? String(get('month')) : null;
+      ['revenue','cogs','payroll','rent','marketing','utilities','supplies','other','cash','ar','inventory','equipment','ap','loans','cc'].forEach(fld => r[fld] = this.num(get(fld)));
+      return r;
+    }).filter(r => r.month && r.revenue > 0);
+    return out;
+  }
+  handleFile = (file) => {
+    if (!file) return;
+    const name = file.name.toLowerCase();
+    const fail = () => this.setState({ ...this.fallbackState(), uploadMsg: "Couldn't read that file, so we loaded the sample client instead. Expected monthly rows with a Month and Revenue column." });
+    try {
+      if (name.endsWith('.csv')) {
+        const reader = new FileReader();
+        reader.onload = e => { try { const rows = this.parseCSV(e.target.result); this.ingest(rows, file.name); } catch (err) { fail(); } };
+        reader.onerror = fail; reader.readAsText(file);
+      } else if (name.endsWith('.xlsx') || name.endsWith('.xls')) {
+        if (!window.XLSX) return fail();
+        const reader = new FileReader();
+        reader.onload = e => { try { const wb = window.XLSX.read(new Uint8Array(e.target.result), {type:'array'}); const ws = wb.Sheets[wb.SheetNames[0]]; const rows = window.XLSX.utils.sheet_to_json(ws,{defval:''}); this.ingest(rows, file.name); } catch (err) { fail(); } };
+        reader.onerror = fail; reader.readAsArrayBuffer(file);
+      } else { fail(); }
+    } catch (e) { fail(); }
+  };
+  parseCSV(text){
+    const lines = text.split(/\r?\n/).filter(l => l.trim().length);
+    if (!lines.length) throw new Error('empty');
+    const split = l => { const out=[]; let cur='',q=false; for(let i=0;i<l.length;i++){const c=l[i]; if(c==='"'){q=!q;} else if(c===','&&!q){out.push(cur);cur='';} else cur+=c;} out.push(cur); return out.map(s=>s.trim().replace(/^"|"$/g,'')); };
+    const head = split(lines[0]);
+    return lines.slice(1).map(l => { const cells = split(l); const o={}; head.forEach((h,i)=>o[h]=cells[i]); return o; });
+  }
+  ingest(rawRows, fname){
+    const data = this.mapRows(rawRows);
+    if (data.length < 2) { this.setState({ ...this.fallbackState(), uploadMsg: "We couldn't find monthly rows with Revenue in \""+fname+"\", so we loaded the sample client." }); return; }
+    this.setState({ data, clientName: fname.replace(/\.(csv|xlsx|xls)$/i,''), periodLabel: data[0].month+' – '+data[data.length-1].month+' · '+data.length+' months', uploadMsg: 'Loaded '+data.length+' months from '+fname, note:'', chat:[] });
+  }
+  fallbackState(){ const data=this.buildSample(); return { data, clientName:'Acme Bakery LLC', periodLabel:data[0].month+' – '+data[data.length-1].month+' · trailing 12 months', note:'', chat:[] }; }
+
+  // ---------- derived ----------
+  totExp(r){ return r.cogs+r.payroll+r.rent+r.marketing+r.utilities+r.supplies+r.other; }
+  net(r){ return r.revenue - this.totExp(r); }
+  assets(r){ return r.cash+r.ar+r.inventory+r.equipment; }
+  liab(r){ return r.ap+r.loans+r.cc; }
+  equity(r){ return this.assets(r)-this.liab(r); }
+  currentRatio(r){ const cl=r.ap+r.cc; return cl>0 ? (r.cash+r.ar+r.inventory)/cl : 0; }
+
+  // ---------- formatting ----------
+  usd(n){ return '$'+Math.round(n).toLocaleString('en-US'); }
+  usdK(n){ const k=n/1000; return '$'+(Math.abs(k)>=100?Math.round(k):k.toFixed(0))+'k'; }
+  pct(a,b){ if(!b) return '0.0%'; return ((a-b)/Math.abs(b)*100).toFixed(1)+'%'; }
+  signed(a,b){ const d=a-b; return (d>=0?'+':'−')+this.usd(Math.abs(d)); }
+
+  // ---------- charts ----------
+  trendChart(data){
+    const h=React.createElement; const W=920,H=320,pl=58,pr=16,pt=16,pb=44;
+    const pw=W-pl-pr, ph=H-pt-pb;
+    const max=Math.max(...data.map(r=>Math.max(r.revenue,this.totExp(r))));
+    const top=Math.ceil(max/20000)*20000;
+    const y=v=>pt+ph-(v/top)*ph;
+    const n=data.length, slot=pw/n, bw=slot*0.26;
+    const grid=[]; for(let i=0;i<=4;i++){ const gv=top*i/4; const gy=y(gv); grid.push(h('line',{key:'g'+i,x1:pl,x2:W-pr,y1:gy,y2:gy,stroke:'var(--border)','strokeWidth':1})); grid.push(h('text',{key:'gt'+i,x:pl-8,y:gy+4,textAnchor:'end',fontSize:11,fontFamily:'IBM Plex Mono, monospace',fill:'var(--muted)'},this.usdK(gv))); }
+    const bars=[]; data.forEach((r,i)=>{ const cx=pl+slot*i+slot/2; const rh=(r.revenue/top)*ph, eh=(this.totExp(r)/top)*ph;
+      bars.push(h('rect',{key:'r'+i,x:cx-bw-2,y:pt+ph-rh,width:bw,height:rh,rx:2,fill:'var(--chart-rev)'}));
+      bars.push(h('rect',{key:'e'+i,x:cx+2,y:pt+ph-eh,width:bw,height:eh,rx:2,fill:'var(--chart-exp)'}));
+      bars.push(h('text',{key:'x'+i,x:cx,y:H-26,textAnchor:'middle',fontSize:11,fontFamily:'IBM Plex Mono, monospace',fill:'var(--muted)'},r.month.split(' ')[0]));
+      bars.push(h('text',{key:'xy'+i,x:cx,y:H-13,textAnchor:'middle',fontSize:9,fontFamily:'IBM Plex Mono, monospace',fill:'var(--muted)'},"'"+r.month.split(' ')[1].slice(2)));
+    });
+    const pts=data.map((r,i)=>(pl+slot*i+slot/2)+','+y(this.net(r))).join(' ');
+    const dots=data.map((r,i)=>h('circle',{key:'d'+i,cx:pl+slot*i+slot/2,cy:y(this.net(r)),r:3.5,fill:'var(--chart-net)',stroke:'var(--surface)','strokeWidth':1.5}));
+    return h('svg',{viewBox:'0 0 '+W+' '+H,style:{width:'100%',height:'auto',display:'block'}},
+      grid, bars, h('polyline',{points:pts,fill:'none',stroke:'var(--chart-net)','strokeWidth':2.5,strokeLinejoin:'round',strokeLinecap:'round'}), dots);
+  }
+
+  balanceChart(r){
+    const h=React.createElement; const W=320,H=300;
+    const A=this.assets(r), L=this.liab(r), E=this.equity(r); const tot=Math.max(A,L+E)||1;
+    const bx=70, bw=70, gap=110, top=24, bh=H-top-44;
+    const seg=(x,segs)=>{ let acc=0; return segs.filter(s=>s.v>0).map((s,i)=>{ const hgt=s.v/tot*bh; const yy=top+bh-acc-hgt; acc+=hgt; return h('rect',{key:x+i,x,y:yy,width:bw,height:Math.max(hgt,0),fill:s.c}); }); };
+    const assetSegs=[{v:r.equipment,c:'#7d8a6a'},{v:r.inventory,c:'#c9a85f'},{v:r.ar,c:'#2f5e8f'},{v:r.cash,c:'var(--chart-rev)'}];
+    const claimSegs=[{v:E,c:'var(--pos)'},{v:r.cc,c:'#c98f5f'},{v:r.ap,c:'var(--accent)'},{v:r.loans,c:'#a8643c'}];
+    const lbl=(x,t,v)=>[h('text',{key:'l'+x,x:x+bw/2,y:H-22,textAnchor:'middle',fontSize:12,fontWeight:600,fill:'var(--ink-soft)'},t),h('text',{key:'v'+x,x:x+bw/2,y:H-7,textAnchor:'middle',fontSize:11,fontFamily:'IBM Plex Mono, monospace',fill:'var(--muted)'},this.usdK(v))];
+    return h('div',null,
+      h('svg',{viewBox:'0 0 '+W+' '+H,style:{width:'100%',maxWidth:'300px',height:'auto',display:'block',margin:'0 auto'}},
+        seg(bx,assetSegs), seg(bx+gap,claimSegs), lbl(bx,'Assets',A), lbl(bx+gap,'Liab.+Equity',L+E)),
+      h('div',{style:{display:'flex',flexWrap:'wrap',gap:'8px 16px',marginTop:'12px',fontSize:'12px',color:'var(--ink-soft)',fontFamily:'IBM Plex Mono, monospace'}},
+        [['Cash','var(--chart-rev)'],['Receivables','#2f5e8f'],['Inventory','#c9a85f'],['Equipment','#7d8a6a'],['Loans','#a8643c'],['Payables','var(--accent)'],['Cards','#c98f5f'],['Equity','var(--pos)']].map((p,i)=>
+          h('span',{key:i,style:{display:'inline-flex',alignItems:'center',gap:'6px'}},h('span',{style:{width:'10px',height:'10px',borderRadius:'2px',background:p[1]}}),p[0]))));
+  }
+
+  donutChart(r){
+    const h=React.createElement; const cats=[
+      {l:'COGS',v:r.cogs,c:'var(--chart-rev)'},{l:'Payroll',v:r.payroll,c:'#2f5e8f'},{l:'Rent',v:r.rent,c:'var(--accent)'},
+      {l:'Marketing',v:r.marketing,c:'#c9a85f'},{l:'Supplies',v:r.supplies,c:'#a8643c'},{l:'Utilities',v:r.utilities,c:'#7d8a6a'},{l:'Other',v:r.other,c:'#9aa0ac'}
+    ].filter(c=>c.v>0);
+    const tot=cats.reduce((s,c)=>s+c.v,0)||1; const R=70,SW=26,C=2*Math.PI*R; let off=0;
+    const rings=cats.map((c,i)=>{ const frac=c.v/tot; const len=frac*C; const el=h('circle',{key:i,cx:100,cy:100,r:R,fill:'none',stroke:c.c,strokeWidth:SW,strokeDasharray:len+' '+(C-len),strokeDashoffset:-off,transform:'rotate(-90 100 100)'}); off+=len; return el; });
+    return h('div',{style:{display:'flex',gap:'18px',alignItems:'center',flexWrap:'wrap'}},
+      h('svg',{viewBox:'0 0 200 200',style:{width:'170px',height:'170px',flexShrink:0}}, rings,
+        h('text',{x:100,y:94,textAnchor:'middle',fontSize:13,fill:'var(--muted)'},'Total exp.'),
+        h('text',{x:100,y:116,textAnchor:'middle',fontSize:18,fontWeight:600,fontFamily:'IBM Plex Mono, monospace',fill:'var(--ink)'},this.usdK(tot))),
+      h('div',{style:{flex:1,minWidth:'140px',display:'flex',flexDirection:'column',gap:'7px'}},
+        cats.map((c,i)=>h('div',{key:i,style:{display:'flex',alignItems:'center',gap:'9px',fontSize:'13px'}},
+          h('span',{style:{width:'11px',height:'11px',borderRadius:'2px',background:c.c,flexShrink:0}}),
+          h('span',{style:{flex:1,color:'var(--ink-soft)'}},c.l),
+          h('span',{style:{fontFamily:'IBM Plex Mono, monospace',color:'var(--ink)',fontWeight:500}},Math.round(c.v/tot*100)+'%')))));
+  }
+
+  kpiRow(data){
+    const h=React.createElement; const cur=data[data.length-1], prev=data[data.length-2]||cur;
+    const cards=[
+      {l:'Revenue',v:this.usd(cur.revenue),pa:cur.revenue,pb:prev.revenue,fmt:'pct'},
+      {l:'Net income',v:this.usd(this.net(cur)),pa:this.net(cur),pb:this.net(prev),fmt:'pct'},
+      {l:'Cash on hand',v:this.usd(cur.cash),pa:cur.cash,pb:prev.cash,fmt:'pct'},
+      {l:'Current ratio',v:this.currentRatio(cur).toFixed(2),pa:this.currentRatio(cur),pb:this.currentRatio(prev),fmt:'abs'}
+    ];
+    return h('div',{style:{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'14px'},className:'kpi4'},
+      cards.map((c,i)=>{ const up=c.pa>=c.pb; const delta=c.fmt==='pct'?this.pct(c.pa,c.pb):(c.pa-c.pb>=0?'+':'−')+Math.abs(c.pa-c.pb).toFixed(2);
+        return h('div',{key:i,style:{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:'14px',padding:'18px 20px',boxShadow:'var(--shadow)'}},
+          h('div',{style:{fontSize:'13px',color:'var(--muted)',fontWeight:600}},c.l),
+          h('div',{style:{fontSize:'28px',fontWeight:600,fontFamily:'IBM Plex Mono, monospace',color:'var(--ink)',marginTop:'6px',letterSpacing:'-.02em'}},c.v),
+          h('div',{style:{fontSize:'13px',marginTop:'6px',fontFamily:'IBM Plex Mono, monospace',fontWeight:600,color:up?'var(--pos)':'var(--neg)'}},(up?'▲ ':'▼ ')+delta+' MoM')); }));
+  }
+
+  highlightsView(data){
+    const h=React.createElement; const cur=data[data.length-1], prev=data[data.length-2]||cur;
+    const items=[
+      {l:'Revenue',a:cur.revenue,b:prev.revenue,good:cur.revenue>=prev.revenue},
+      {l:'Net income',a:this.net(cur),b:this.net(prev),good:this.net(cur)>=this.net(prev)},
+      {l:'Total expenses',a:this.totExp(cur),b:this.totExp(prev),good:this.totExp(cur)<=this.totExp(prev)},
+      {l:'Cash',a:cur.cash,b:prev.cash,good:cur.cash>=prev.cash},
+      {l:'Payroll',a:cur.payroll,b:prev.payroll,good:cur.payroll<=prev.payroll},
+      {l:'COGS',a:cur.cogs,b:prev.cogs,good:cur.cogs<=prev.cogs}
+    ];
+    return h('div',{style:{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'14px'},className:'hl3'},
+      items.map((it,i)=>{ const dpct=it.b?((it.a-it.b)/Math.abs(it.b)*100):0; const upRaw=it.a>=it.b;
+        return h('div',{key:i,style:{background:'var(--surface)',border:'1px solid var(--border)',borderLeft:'3px solid '+(it.good?'var(--pos)':'var(--neg)'),borderRadius:'12px',padding:'14px 16px',boxShadow:'var(--shadow)'}},
+          h('div',{style:{fontSize:'13px',color:'var(--muted)',fontWeight:600}},it.l),
+          h('div',{style:{display:'flex',alignItems:'baseline',gap:'8px',marginTop:'4px'}},
+            h('span',{style:{fontSize:'19px',fontWeight:600,fontFamily:'IBM Plex Mono, monospace',color:'var(--ink)'}},this.usd(it.a)),
+            h('span',{style:{fontSize:'13px',fontWeight:600,fontFamily:'IBM Plex Mono, monospace',color:it.good?'var(--pos)':'var(--neg)'}},(upRaw?'▲':'▼')+' '+Math.abs(dpct).toFixed(1)+'%')),
+          h('div',{style:{fontSize:'12px',color:'var(--muted)',marginTop:'2px',fontFamily:'IBM Plex Mono, monospace'}},'from '+this.usd(it.b))); }));
+  }
+
+  chatView(chat, loading){
+    const h=React.createElement;
+    if (!chat.length && !loading) return h('div',{style:{padding:'18px',borderRadius:'12px',background:'rgba(255,255,255,.05)',color:'#aab2c2',fontSize:'14px',lineHeight:'1.6'}},'Ask anything about these numbers — trends, ratios, what drove a change, or what to watch next month.');
+    const bubbles=chat.map((m,i)=>{ const u=m.role==='user';
+      return h('div',{key:i,style:{display:'flex',justifyContent:u?'flex-end':'flex-start',marginBottom:'10px'}},
+        h('div',{style:{maxWidth:'82%',padding:'11px 15px',borderRadius:'14px',fontSize:'14px',lineHeight:'1.6',whiteSpace:'pre-wrap',background:u?'var(--accent)':'rgba(255,255,255,.07)',color:u?'#fff':'#eef1f6',borderTopRightRadius:u?'4px':'14px',borderTopLeftRadius:u?'14px':'4px'}},m.content)); });
+    if (loading) bubbles.push(h('div',{key:'load',style:{display:'flex',gap:'5px',padding:'12px 4px'}},[0,1,2].map(d=>h('span',{key:d,style:{width:'7px',height:'7px',borderRadius:'50%',background:'var(--accent)',animation:'blink 1s '+(d*0.2)+'s infinite'}}))));
+    return h('div',{style:{maxHeight:'320px',overflowY:'auto',padding:'4px 2px'}}, bubbles);
+  }
+
+  // ---------- AI ----------
+  dataSummary(){
+    const d=this.state.data; if(!d) return '';
+    const rows=d.map(r=>r.month+': revenue '+this.usd(r.revenue)+', expenses '+this.usd(this.totExp(r))+', net '+this.usd(this.net(r))+', cash '+this.usd(r.cash)+', assets '+this.usd(this.assets(r))+', liabilities '+this.usd(this.liab(r))+', equity '+this.usd(this.equity(r))).join('\n');
+    const cur=d[d.length-1];
+    const exp=cur.month+' expense breakdown — COGS '+this.usd(cur.cogs)+', payroll '+this.usd(cur.payroll)+', rent '+this.usd(cur.rent)+', marketing '+this.usd(cur.marketing)+', utilities '+this.usd(cur.utilities)+', supplies '+this.usd(cur.supplies)+', other '+this.usd(cur.other);
+    return 'Client: '+this.state.clientName+'\nMonthly financials:\n'+rows+'\n\n'+exp;
+  }
+  askAI = async (question) => {
+    if (!question || this.state.chatLoading || !this.state.data) return;
+    const chat=[...this.state.chat,{role:'user',content:question}];
+    this.setState({chat,chatLoading:true});
+    try {
+      const prompt='You are Annco AI, a sharp, plain-spoken CPA assistant for a small accounting firm. Answer the owner\'s question using ONLY the figures below. Be concise (2-4 sentences), cite specific dollar figures or percentages, and avoid jargon. If asked for advice, be practical and cautious. Do not invent data.\n\n'+this.dataSummary()+'\n\nQuestion: '+question;
+      const ans=await window.claude.complete(prompt);
+      this.setState({chat:[...this.state.chat,{role:'assistant',content:(ans||'').trim()||'Sorry — I had trouble with that one. Try rephrasing?'}],chatLoading:false});
+    } catch(e){
+      this.setState({chat:[...this.state.chat,{role:'assistant',content:'I couldn\'t reach the model just now. Please try again in a moment.'}],chatLoading:false});
+    }
+  };
+  sendChat = () => { const el=this._dom._chat; if(!el) return; const v=el.value.trim(); if(!v) return; el.value=''; this.askAI(v); };
+  onChatKey = (e) => { if(e.key==='Enter'){ e.preventDefault(); this.sendChat(); } };
+  draftNote = async () => {
+    if (this.state.noteLoading || !this.state.data) return;
+    this.setState({noteLoading:true});
+    const cur=this.state.data[this.state.data.length-1];
+    try{
+      const prompt='You are a CPA at Annco Consulting, LLC writing the monthly summary note to a small-business client. Using ONLY the figures below, write a warm but professional note (about 140-200 words). Open with "Dear '+this.state.clientName+' team," Cover: the month\'s revenue and net income vs the prior month, what drove the change, the cash and balance-sheet position, and one or two practical things to watch next month. End with "Warm regards, The Annco Team". Plain prose, no markdown headers or bullet symbols.\n\nMost recent month: '+cur.month+'\n'+this.dataSummary();
+      const note=await window.claude.complete(prompt);
+      this.setState({note:(note||'').trim(),noteLoading:false});
+    }catch(e){ this.setState({note:'',noteLoading:false}); alert('Could not draft the note right now — please try again.'); }
+  };
+  printNote = () => { this.setState({printing:true}); setTimeout(()=>{ window.print(); setTimeout(()=>this.setState({printing:false}),200); },120); };
+
+  // ---------- contact ----------
+  submitContact = () => {
+    const n=this._dom._name?this._dom._name.value.trim():'';
+    const em=this._dom._email?this._dom._email.value.trim():'';
+    if(!n || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){ this.setState({contactError:true}); return; }
+    this.setState({contactDone:true,contactError:false,contactName:n,contactEmail:em});
+  };
+  resetContact = () => { this.setState({contactDone:false}); };
+
+  // ---------- nav ----------
+  go = (r) => { this.setState({route:r,uploadMsg:''}); window.scrollTo(0,0); };
+
+  renderVals(){
+    const s=this.state; const h=React.createElement;
+    this._dom=this._dom||{}; this.cd=this.cd||{};
+    const cd=(size)=>{ const big=size==='big'; const cell=(u,lab)=>h('div',{key:u,style:{textAlign:'center'}},
+        h('div',{ref:el=>{this.cd[(big?'b':'s')+'|'+u]=el;},style:{fontFamily:'IBM Plex Mono, monospace',fontWeight:600,fontSize:big?'46px':'34px',lineHeight:1,color:'#f6f1e7',minWidth:big?'74px':'54px'}},'—'),
+        h('div',{style:{fontSize:big?'12px':'11px',letterSpacing:'.1em',textTransform:'uppercase',color:'#9aa3b3',marginTop:'8px'}},lab));
+      return h('div',{style:{display:'flex',gap:big?'22px':'16px',alignItems:'flex-start'}},
+        cell('D','Days'),h('div',{style:{fontSize:big?'40px':'30px',color:'#4a5876',fontFamily:'IBM Plex Mono, monospace',lineHeight:big?'1.1':'1'}},':'),
+        cell('H','Hrs'),h('div',{style:{fontSize:big?'40px':'30px',color:'#4a5876',fontFamily:'IBM Plex Mono, monospace',lineHeight:big?'1.1':'1'}},':'),
+        cell('M','Min'),h('div',{style:{fontSize:big?'40px':'30px',color:'#4a5876',fontFamily:'IBM Plex Mono, monospace',lineHeight:big?'1.1':'1'}},':'),
+        cell('S','Sec'));
+    };
+    const dl=this.nextDeadline();
+    const dlNames={ '3-15':'April 15 — Q1 estimates & individual returns','5-15':'June 15 — Q2 estimated taxes','8-15':'September 15 — Q3 estimates & S-corp/partnership ext.','9-15':'October 15 — extended individual returns','0-15':'January 15 — Q4 estimated taxes' };
+    const key=dl.getMonth()+'-'+dl.getDate();
+    const navItems=[['home','Home'],['services','Services'],['resources','Resources'],['about','About'],['contact','Contact']];
+    const navLinks=h(React.Fragment,null,navItems.map(([k,l])=>{ const active=s.route===k;
+      return h('button',{key:k,onClick:()=>this.go(k),style:{background:active?'var(--accent-soft)':'none',border:'none',padding:'8px 13px',borderRadius:'8px',fontSize:'14.5px',fontWeight:active?600:500,color:active?'var(--accent)':'var(--ink-soft)'}},l); }));
+
+    // hero mini-dashboard card
+    const sample=this.buildSample(); const last=sample.slice(-6);
+    const mx=Math.max(...last.map(r=>r.revenue));
+    const heroCard=h('div',{style:{background:'var(--navy)',borderRadius:'20px',padding:'26px',color:'#f6f1e7',boxShadow:'0 30px 60px -20px rgba(22,36,63,.4)'}},
+      h('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center'}},
+        h('div',{style:{fontSize:'13px',color:'#9aa3b3',fontFamily:'IBM Plex Mono, monospace'}},'ACME BAKERY LLC'),
+        h('div',{style:{fontSize:'12px',background:'rgba(255,255,255,.1)',padding:'4px 10px',borderRadius:'100px'}},'Live demo')),
+      h('div',{style:{fontFamily:'IBM Plex Mono, monospace',fontSize:'34px',fontWeight:600,marginTop:'10px'}},'$103,000'),
+      h('div',{style:{fontSize:'13px',color:'#7fbf9b',fontFamily:'IBM Plex Mono, monospace'}},'▲ 13.2% revenue · May 2026'),
+      h('div',{style:{display:'flex',gap:'7px',alignItems:'flex-end',height:'90px',marginTop:'20px'}},
+        last.map((r,i)=>h('div',{key:i,style:{flex:1,height:(r.revenue/mx*100)+'%',background:i===last.length-1?'var(--accent)':'rgba(255,255,255,.18)',borderRadius:'4px'}}))),
+      h('div',{style:{display:'flex',justifyContent:'space-between',fontSize:'11px',color:'#6d7790',marginTop:'8px',fontFamily:'IBM Plex Mono, monospace'}},last.map((r,i)=>h('span',{key:i},r.month.split(' ')[0]))));
+
+    const svc=[
+      {t:'Tax preparation',d:'Federal, state & local returns for businesses and owners — accurate, on time, and optimized.'},
+      {t:'Bookkeeping',d:'Clean monthly books you can actually read, reconciled and ready for decisions.'},
+      {t:'Payroll & sales tax',d:'Run payroll and stay current on NY sales-tax filings without the headache.'},
+      {t:'Nonprofit accounting',d:'Fund accounting, Form 990, and board-ready statements for mission-driven orgs.'}
+    ];
+    const svcCard=(c,full)=>h('div',{key:c.t,style:{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:'16px',padding:full?'26px':'22px',boxShadow:'var(--shadow)'}},
+      h('div',{style:{width:'40px',height:'40px',borderRadius:'10px',background:'var(--accent-soft)',color:'var(--accent)',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'Georgia, serif',fontWeight:700,fontSize:'18px'}},c.t[0]),
+      h('div',{style:{fontFamily:'Georgia, serif',fontSize:full?'21px':'18px',fontWeight:700,marginTop:'14px'}},c.t),
+      h('p',{style:{color:'var(--ink-soft)',fontSize:full?'15.5px':'14.5px',marginTop:'7px',lineHeight:1.6}},c.d));
+    const servicesPreview=h(React.Fragment,null,svc.slice(0,3).map(c=>svcCard(c,false)));
+    const servicesFull=h(React.Fragment,null,svc.map(c=>svcCard(c,true)));
+
+    const links=[
+      {t:"Where's My Refund?",d:'Check your federal refund status on IRS.gov.',u:'https://www.irs.gov/refunds'},
+      {t:'IRS forms & instructions',d:'Find and download every federal form.',u:'https://www.irs.gov/forms-instructions'},
+      {t:'New York State tax forms',d:'State income, sales & business forms.',u:'https://www.tax.ny.gov/forms/'}
+    ];
+    const resourceLinks=h(React.Fragment,null,links.map(l=>h('a',{key:l.t,href:l.u,target:'_blank',rel:'noopener',style:{textDecoration:'none',background:'var(--surface)',border:'1px solid var(--border)',borderRadius:'16px',padding:'22px',boxShadow:'var(--shadow)',display:'block',color:'var(--ink)'}},
+      h('div',{style:{fontFamily:'Georgia, serif',fontSize:'18px',fontWeight:700}},l.t),
+      h('p',{style:{color:'var(--ink-soft)',fontSize:'14.5px',marginTop:'6px'}},l.d),
+      h('div',{style:{color:'var(--accent)',fontSize:'13px',fontWeight:600,marginTop:'12px',fontFamily:'IBM Plex Mono, monospace'}},'Open on official site ↗'))));
+
+    const suggestions=['How are we trending this year?','Why did net income drop in January?','What were our biggest expenses last month?','Is our cash position healthy?'];
+    const suggestChips=h(React.Fragment,null,suggestions.map(q=>h('button',{key:q,onClick:()=>this.askAI(q),style:{padding:'8px 13px',borderRadius:'100px',border:'1px solid rgba(255,255,255,.18)',background:'rgba(255,255,255,.05)',color:'#dfe4ee',fontSize:'13px'}},q)));
+
+    const data=s.data; const snap=data?data[data.length-1]:null;
+    const longDate=dl.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+
+    return {
+      rootRef: (el)=>{ this.rootEl=el; this.applyTheme(el,s.dark); },
+      showApp: !s.printing, showPrint: s.printing && !!s.note,
+      darkIcon: s.dark?'☀':'☾',
+      toggleDark: ()=>{ const d=!s.dark; this.setState({dark:d}); this.applyTheme(this.rootEl,d); try{localStorage.setItem('annco-dark',d?'1':'0');}catch(e){} },
+      goHome:()=>this.go('home'), goServices:()=>this.go('services'), goContact:()=>this.go('contact'), goDashboard:()=>this.go('dashboard'),
+      navLinks,
+      isHome:s.route==='home', isServices:s.route==='services', isResources:s.route==='resources', isAbout:s.route==='about', isContact:s.route==='contact', isDashboard:s.route==='dashboard',
+      heroCard, servicesPreview, servicesFull, resourceLinks, suggestChips,
+      deadlineLabel: dlNames[key]||'Upcoming filing deadline', deadlineDateLong: longDate,
+      homeCountdown: cd('small'), resourcesCountdown: cd('big'),
+      contactDone:s.contactDone, contactOpen:!s.contactDone, contactError:s.contactError, contactName:s.contactName, contactEmail:s.contactEmail,
+      refName:el=>this._dom._name=el, refEmail:el=>this._dom._email=el, refBiz:el=>this._dom._biz=el, refMsg:el=>this._dom._msg=el,
+      submitContact:this.submitContact, resetContact:this.resetContact,
+      clientName:s.clientName||'No client loaded', periodLabel:s.periodLabel||'Upload a balance sheet or load the sample',
+      uploadMsg:s.uploadMsg,
+      onFile:(e)=>{ const f=e.target.files&&e.target.files[0]; this.handleFile(f); e.target.value=''; },
+      onDragOver:(e)=>e.preventDefault(), onDrop:(e)=>{ e.preventDefault(); const f=e.dataTransfer.files&&e.dataTransfer.files[0]; this.handleFile(f); },
+      loadSample:this.loadSample,
+      noData:!data, hasData:!!data,
+      snapshotLabel: snap?snap.month:'', 
+      kpiRow: data?this.kpiRow(data):null,
+      trendChart: data?this.trendChart(data):null,
+      balanceChart: snap?this.balanceChart(snap):null,
+      donutChart: snap?this.donutChart(snap):null,
+      highlightsView: data?this.highlightsView(data):null,
+      refChat:el=>this._dom._chat=el, sendChat:this.sendChat, onChatKey:this.onChatKey,
+      chatView:this.chatView(s.chat,s.chatLoading),
+      draftNote:this.draftNote, printNote:this.printNote,
+      noteBtnLabel: s.noteLoading?'Drafting…':(s.note?'Re-draft note':'Draft monthly note'),
+      hasNote:!!s.note && !s.noteLoading, noteEmpty:!s.note && !s.noteLoading, note:s.note,
+      noteDateLong: snap?snap.month:longDate
+    };
+  }
+}
+</script>
+</body>
+</html>

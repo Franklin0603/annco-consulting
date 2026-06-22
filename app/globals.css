@@ -1,0 +1,162 @@
+:root {
+  --bg: #f6f1e7;
+  --surface: #fffdf8;
+  --surface-2: #efe7d7;
+  --ink: #16243f;
+  --ink-soft: #4a5468;
+  --muted: #8d8775;
+  --border: #e7ddcb;
+  --navy: #16243f;
+  --navy-2: #22355a;
+  --accent: #b8842f;
+  --accent-soft: rgba(184, 132, 47, 0.12);
+  --pos: #2f7d54;
+  --neg: #b1402f;
+  --chart-rev: #16243f;
+  --chart-exp: #cdbb92;
+  --chart-net: #b8842f;
+  --shadow: 0 1px 2px rgba(22, 36, 63, 0.06), 0 8px 24px rgba(22, 36, 63, 0.06);
+
+  --font-mono: var(--font-plex-mono), "IBM Plex Mono", monospace;
+  --font-serif: Georgia, "Times New Roman", serif;
+}
+
+[data-theme="dark"] {
+  --bg: #0d1524;
+  --surface: #15213a;
+  --surface-2: #1b2840;
+  --ink: #f2ece0;
+  --ink-soft: #b7bfce;
+  --muted: #838da0;
+  --border: #27334c;
+  --navy: #16243f;
+  --navy-2: #22355a;
+  --accent: #d2a14f;
+  --accent-soft: rgba(210, 161, 79, 0.16);
+  --pos: #5bbd86;
+  --neg: #e0795f;
+  --chart-rev: #9db4e0;
+  --chart-exp: #cdbb92;
+  --chart-net: #d2a14f;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--ink);
+}
+
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  font-size: 16px;
+  line-height: 1.55;
+  min-height: 100vh;
+  transition: background 0.3s, color 0.3s;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+input,
+textarea {
+  font-family: inherit;
+}
+
+::placeholder {
+  color: #a39c8c;
+}
+
+a {
+  color: inherit;
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+.serif {
+  font-family: var(--font-serif);
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.fade-up {
+  animation: fadeUp 0.6s ease;
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease;
+}
+
+/* Responsive: collapse multi-column grids under ~860px */
+@media (max-width: 860px) {
+  .grid-collapse {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media print {
+  @page {
+    margin: 0.6in;
+  }
+  body * {
+    visibility: hidden;
+  }
+  .print-only,
+  .print-only * {
+    visibility: visible;
+  }
+  .print-only {
+    position: absolute;
+    inset: 0;
+    display: block !important;
+    background: #fff;
+  }
+}

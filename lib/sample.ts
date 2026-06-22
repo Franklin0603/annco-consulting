@@ -1,0 +1,67 @@
+import type { MonthRow } from "./types";
+
+// Acme Bakery LLC — trailing 12 months (Jun 2025 → May 2026).
+// Values copied verbatim from the design prototype's buildSample().
+function f(
+  month: string,
+  revenue: number,
+  cogs: number,
+  payroll: number,
+  rent: number,
+  marketing: number,
+  utilities: number,
+  supplies: number,
+  other: number,
+  cash: number,
+  ar: number,
+  inventory: number,
+  equipment: number,
+  ap: number,
+  loans: number,
+  cc: number,
+): MonthRow {
+  return {
+    month,
+    revenue,
+    cogs,
+    payroll,
+    rent,
+    marketing,
+    utilities,
+    supplies,
+    other,
+    cash,
+    ar,
+    inventory,
+    equipment,
+    ap,
+    loans,
+    cc,
+  };
+}
+
+export function buildSample(): MonthRow[] {
+  return [
+    f("Jun 2025", 78000, 23400, 29000, 6500, 2200, 2100, 2600, 2400, 44000, 9000, 14000, 88000, 11000, 120000, 6000),
+    f("Jul 2025", 72000, 21600, 28000, 6500, 2000, 2300, 2400, 2200, 46000, 8000, 13000, 87500, 10000, 119000, 5500),
+    f("Aug 2025", 70000, 21000, 28000, 6500, 1800, 2500, 2300, 2100, 47500, 7500, 13500, 87000, 9500, 118000, 5000),
+    f("Sep 2025", 81000, 24300, 30000, 6500, 2500, 2200, 2700, 2300, 50000, 10000, 15000, 86500, 12000, 117000, 6000),
+    f("Oct 2025", 92000, 27600, 32000, 6500, 3000, 2300, 3000, 2600, 54000, 12000, 18000, 86000, 14000, 116000, 6500),
+    f("Nov 2025", 118000, 35400, 38000, 6500, 3800, 2600, 3800, 3000, 62000, 16000, 22000, 85500, 18000, 115000, 7500),
+    f("Dec 2025", 142000, 42600, 42000, 6500, 4200, 2800, 4200, 3400, 78000, 18000, 16000, 85000, 20000, 114000, 8500),
+    f("Jan 2026", 64000, 19200, 27000, 6500, 2000, 2700, 2200, 2100, 80000, 8000, 12000, 84500, 9000, 113000, 5000),
+    f("Feb 2026", 98000, 29400, 31000, 6500, 3200, 2600, 3100, 2500, 86000, 11000, 14000, 84000, 12000, 112000, 6000),
+    f("Mar 2026", 86000, 25800, 30000, 6500, 2600, 2300, 2800, 2400, 90000, 10000, 14500, 83500, 11000, 111000, 5500),
+    f("Apr 2026", 91000, 27300, 31000, 6500, 2800, 2100, 2900, 2400, 95000, 11500, 15000, 83000, 12500, 110000, 5800),
+    f("May 2026", 103000, 30900, 33000, 6500, 3200, 2000, 3200, 2600, 102000, 13000, 16000, 82500, 13500, 109000, 6200),
+  ];
+}
+
+export function sampleDashboard() {
+  const data = buildSample();
+  return {
+    data,
+    clientName: "Acme Bakery LLC",
+    periodLabel: `${data[0].month} – ${data[data.length - 1].month} · trailing 12 months`,
+  };
+}
