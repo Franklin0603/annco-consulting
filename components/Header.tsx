@@ -116,10 +116,10 @@ export function Header() {
               {label}
             </Link>
           ))}
-          <Link href="/dashboard" className={styles.mobileCta}>
+          <Link href="/dashboard" className={styles.link} style={linkStyle("/dashboard")}>
             Client Dashboard
           </Link>
-          <Link href="/admin" className={styles.link} style={{ color: "var(--ink-soft)" }}>
+          <Link href="/admin" className={styles.link} style={linkStyle("/admin")}>
             Admin
           </Link>
           <a href="tel:+17185550142" className={`${styles.mobilePhone} mono`}>
