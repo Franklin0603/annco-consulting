@@ -127,6 +127,28 @@ a {
   }
 }
 
+@keyframes pulseCta {
+  0%,
+  100% {
+    transform: translateY(0);
+    box-shadow: 0 8px 20px rgba(184, 132, 47, 0.28);
+  }
+  50% {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 28px rgba(184, 132, 47, 0.38);
+  }
+}
+
+.pulse-cta {
+  animation: pulseCta 1.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-cta {
+    animation: none;
+  }
+}
+
 .fade-up {
   animation: fadeUp 0.6s ease;
 }

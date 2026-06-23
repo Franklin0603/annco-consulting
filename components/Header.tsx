@@ -116,7 +116,7 @@ export function Header() {
               {label}
             </Link>
           ))}
-          <Link href="/dashboard" className={`${styles.cta} ${styles.mobileCta}`}>
+          <Link href="/dashboard" className={styles.mobileCta}>
             Client Dashboard
           </Link>
           <Link href="/admin" className={styles.link} style={{ color: "var(--ink-soft)" }}>

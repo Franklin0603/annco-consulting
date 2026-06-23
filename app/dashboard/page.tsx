@@ -187,31 +187,41 @@ export default function DashboardPage() {
         >
           <div style={{ fontSize: 52, color: "var(--accent)" }}>⬗</div>
           <div style={{ fontFamily: "var(--font-serif)", fontSize: 24, fontWeight: 700, marginTop: 12 }}>
-            Drop a monthly balance sheet to begin
+            See the dashboard in action
           </div>
-          <p style={{ color: "var(--ink-soft)", fontSize: 15, marginTop: 8, maxWidth: 420, marginInline: "auto" }}>
-            Upload a CSV or XLSX with monthly rows (Month + Revenue and any balance-sheet columns), or
-            explore with our sample client.
+          <p style={{ color: "var(--ink-soft)", fontSize: 15, marginTop: 8, maxWidth: 460, marginInline: "auto", lineHeight: 1.6 }}>
+            New here? Load our sample client to instantly explore the full dashboard — KPIs, charts, a
+            6-month forecast, and the AI assistant. No file needed.
           </p>
+
+          <div className="mono" style={{ marginTop: 22, fontSize: 13, color: "var(--accent)", fontWeight: 600, letterSpacing: ".04em" }}>
+            👇 Click here to view the insights
+          </div>
           <button
             onClick={loadSample}
+            className="pulse-cta"
             style={{
-              marginTop: 24,
-              padding: "14px 24px",
-              borderRadius: 11,
+              marginTop: 10,
+              padding: "16px 28px",
+              borderRadius: 12,
               border: "none",
               background: "var(--accent)",
               color: "#fff",
-              fontWeight: 600,
-              fontSize: 15,
+              fontWeight: 700,
+              fontSize: 16,
+              boxShadow: "0 8px 20px rgba(184,132,47,.28)",
             }}
           >
-            Load sample client (Acme Bakery LLC)
+            ▶ Load sample client (Acme Bakery LLC)
           </button>
-          <div style={{ marginTop: 16 }}>
-            <a href="/sample-balance-sheet.csv" download className="mono" style={{ color: "var(--accent)", fontSize: 13, textDecoration: "none" }}>
-              ⬇ Download a sample template (.csv) to try the upload
-            </a>
+
+          <div style={{ marginTop: 22, paddingTop: 18, borderTop: "1px solid var(--border)", maxWidth: 460, marginInline: "auto" }}>
+            <p style={{ color: "var(--muted)", fontSize: 13.5, lineHeight: 1.6 }}>
+              Want to try your own numbers? Use <strong>Upload .csv / .xlsx</strong> above, or{" "}
+              <a href="/sample-balance-sheet.csv" download className="mono" style={{ color: "var(--accent)", textDecoration: "none" }}>
+                download a sample template ↓
+              </a>
+            </p>
           </div>
         </div>
       )}
